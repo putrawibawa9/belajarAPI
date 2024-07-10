@@ -9,12 +9,16 @@ const responputra = require("./responputra");
 app.use(bodyParser.json());
 
 app.get("/", (req, res) => {
+  responputra(300, "API ready to gasdao", "SUCCESS", res);
+});
+app.get("/testing", (req, res) => {
   responputra(200, "API ready to go", "SUCCESS", res);
 });
 app.get("/mahasiswa", (req, res) => {
   const sql = "SELECT * FROM mahasiswa";
   db.query(sql, (err, field) => {
     if (err) throw err;
+    console.log(field);
     responputra(200, field, "get mahasiswa", res);
   });
 });
@@ -44,36 +48,39 @@ app.post("/mahasiswa", (req, res) => {
 });
 
 app.put("/", (req, res) => {
-  const { id, nim, nama_lengkap, kelas, alamat } = req.body;
-  console.log(id, nama_lengkap, kelas, alamat);
+  const { id, nim, nama_lengkap, kelas, alamat } = req.body; 
   const sql = `UPDATE mahasiswa SET nim = ${nim}, nama_lengkap = '${nama_lengkap}', kelas = '${kelas}', alamat = '${alamat}' WHERE id = ${id} `;
   db.query(sql, (err, field) => {
     if (err) responputra(500, "invalid", "error", res);
     if (field?.affectedRows) {
       const data = {
         isSuccess: field.affectedRows,
-        id: field.insertId,
+        message : field.message
       };
       responputra(200, data, "data berhasil diubah", res);
+    }else{
+      responputra(500,"unknown id","error", res)
     }
   });
 });
 
 app.delete("/", (req, res) => {
-  const id= req.body.id;
-  const sql = `DELETE FROM mahasiswa WHERE id = ${id} `;
+  const id = req.body.id;
+  const sql = `DELETE FROM mahasiswa WHERE id = ${id}`;
   db.query(sql, (err, field) => {
     if (err) responputra(500, "invalid", "error", res);
     if (field?.affectedRows) {
       const data = {
         isSuccess: field.affectedRows,
+        message: field.message,
       };
-      responputra(200, data, "data berhasil dihapus",res);
-    }else{
-      responputra(404, data, "user not found", res);
+      responputra(200, data, "data berhasil diubah", res);
+    } else {
+      responputra(500, "unknown id", "error", res);
     }
   });
 });
+
 
 app.get("/", (req, res) => {
   const sql = "SELECT * FROM mahasiswa";
